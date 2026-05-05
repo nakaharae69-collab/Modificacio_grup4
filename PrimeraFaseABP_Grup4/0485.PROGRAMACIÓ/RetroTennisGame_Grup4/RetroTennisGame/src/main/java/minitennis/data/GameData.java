@@ -17,5 +17,14 @@ public class GameData implements Serializable {
 
     public int puntuacionJugador1;
     public int puntuacionJugador2;
+}
 
+
+class BallState implements Serializable {
+
+    public double x;
+    public double y;
+    public double speed;
+    public double directionX;
+    public double directionY;
 }

@@ -498,11 +498,17 @@ public class Game extends JPanel {
 	 * Es crida quan la bola toca el fons de la pantalla.
 	 */
 	public void gameOver() {
-	    // 1. Bloqueig de seguretat: evitem que el diàleg surti 2 cops si la bola rebota al fons
+	    
+
+		// 1. Bloqueig de seguretat: evitem que el diàleg surti 2 cops si la bola rebota al fons
 	    if (gameEnded) {
 	        return;
 	    }
 	    gameEnded = true;
+	    
+		if (gameTimer != null) {
+		    gameTimer.stop();
+		}
 
 	    // 2. Aturem sons i posem el de derrota
 	    sonido.stopFondo();
@@ -537,7 +543,6 @@ public class Game extends JPanel {
 	                        "\nTOTAL: " + total
 	                    );
 
-	                System.exit(0);
 	            }
 
 	        } else {
@@ -695,6 +700,37 @@ public class Game extends JPanel {
 	        data.puntuacionJugador1 = puntuacionJugador1;
 	        data.puntuacionJugador2 = puntuacionJugador2;
 
+	        
+	        // GUARDAR RAQUETA
+	        data.racquetX = racquet.getX();
+
+	        // GUARDAR BOLAS
+	        data.balls = new ArrayList<>();
+	        
+	        for (Ball b : balls) {
+	            BallState bs = new BallState();
+
+	            bs.x = b.getX();
+	            bs.y = b.getY();
+
+	            bs.speed = b.getSpeed();
+
+	            // si tienes dirección:
+	            bs.directionX = b.getDx();
+	            bs.directionY = b.getDy();
+
+	            data.balls.add(bs);
+	        }
+	        
+	        // GUARDAR OBSTÁCULOS
+	        data.obstacleX = new ArrayList<>();
+	        data.obstacleY = new ArrayList<>();
+
+	        for (Obstacle o : obstacles) {
+	            data.obstacleX.add(o.getX());
+	            data.obstacleY.add(o.getY());
+	        }
+	        
 	        ObjectOutputStream oos = new ObjectOutputStream(
 	                new FileOutputStream("partida.dat")
 	        );
@@ -724,6 +760,55 @@ public class Game extends JPanel {
 
 	    } catch (Exception e) {
 	        return null;
+	    }
+	}
+	
+	private void cargarEstado(GameData data) {
+
+	    level = data.level;
+	    score = data.score;
+
+	    jugador1 = data.jugador1;
+	    jugador2 = data.jugador2;
+	    nickname = data.nickname;
+
+	    modoJuego = data.modoJuego;
+	    jugadorActual = data.jugadorActual;
+
+	    puntuacionJugador1 = data.puntuacionJugador1;
+	    puntuacionJugador2 = data.puntuacionJugador2;
+
+	    // RAQUETA
+	    racquet = new Racquet(this);
+	    racquet.setX(data.racquetX);
+
+	    // BOLAS
+	    balls.clear();
+
+	    for (BallState bs : data.balls) {
+	        Ball b = new Ball(this);
+
+	        b.setX(bs.x);
+	        b.setY(bs.y);
+
+	        b.setSpeed(bs.speed);
+
+	        b.setDx(bs.directionX);
+	        b.setDy(bs.directionY);
+
+	        balls.add(b);
+	    }
+
+	    // OBSTÁCULOS
+	    obstacles.clear();
+
+	    for (int i = 0; i < data.obstacleX.size(); i++) {
+	        obstacles.add(new Obstacle(
+	                data.obstacleX.get(i),
+	                data.obstacleY.get(i),
+	                this,
+	                level
+	        ));
 	    }
 	}
 	
